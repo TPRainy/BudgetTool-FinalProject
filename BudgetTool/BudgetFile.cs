@@ -14,7 +14,7 @@ public static class BudgetFile
         ArgumentNullException.ThrowIfNull(path);
 
         if (!string.Equals(Path.GetExtension(path), ".json", StringComparison.OrdinalIgnoreCase))
-            return Result.Fail<string>(FileErrors.UnsupportedType(path));
+            return Result.Fail<string>(FileErrors.UnsupportedType(path, ".json"));
 
         try
         {

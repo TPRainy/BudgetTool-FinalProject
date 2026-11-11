@@ -8,4 +8,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- Native library (Assignment 8): copy the prebuilt binary next to BudgetTool.dll after every build. -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <None Update="native\runtimes\win-x64\budgetcalc.dll" Link="budgetcalc.dll" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <None Update="native\runtimes\linux-x64\libbudgetcalc.so" Link="libbudgetcalc.so" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
