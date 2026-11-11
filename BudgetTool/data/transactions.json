@@ -1,0 +1,12 @@
+{
+  "transactions": [
+    { "id": "T1", "category": "salary", "amount": 1500, "kind": "income" },
+    { "id": "T2", "category": " Rent ", "amount": 300, "kind": "expense" },
+    { "id": "T3", "category": "food", "amount": 150, "kind": "expense" },
+    { "id": "T4", "category": "food", "amount": 50, "kind": "expense" },
+    { "id": "T5", "category": "fun", "amount": 400, "kind": "expense" },
+    { "id": "T3", "category": "food", "amount": 150, "kind": "expense" },
+    { "id": "T7", "category": "misc", "amount": -5, "kind": "expense" },
+    { "id": "T8", "category": "misc", "amount": "abc", "kind": "expense" }
+  ]
+}

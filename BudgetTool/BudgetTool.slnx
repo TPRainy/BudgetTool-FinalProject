@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../BudgetToolTests/BudgetToolTests.csproj" Id="ad22a6f9-5fab-4949-851b-99cc79f2f670" />
+  <Project Path="BudgetTool.csproj" />
+</Solution>

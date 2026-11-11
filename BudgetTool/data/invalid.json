@@ -1,0 +1,6 @@
+﻿{
+  "transactions": [
+    {
+      "id": "T1",
+      "category": "food",
+      "amount": 100
