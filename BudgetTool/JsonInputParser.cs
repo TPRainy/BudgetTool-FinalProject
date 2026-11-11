@@ -4,6 +4,18 @@ namespace BudgetTool;
 
 public static class JsonInputParser
 {
+    public static Result<IReadOnlyList<RawTransaction?>> Parse(string json, string source)
+    {
+        ArgumentNullException.ThrowIfNull(json);
+        ArgumentNullException.ThrowIfNull(source);
+
+        var read = Read(json);
+        if (read.FormatError is not null)
+            return Result.Fail<IReadOnlyList<RawTransaction?>>(FileErrors.Malformed(source, read.FormatError));
+
+        return Result.Ok(read.Records);
+    }
+
     public static RawReadResult Read(string json)
     {
         ArgumentNullException.ThrowIfNull(json);

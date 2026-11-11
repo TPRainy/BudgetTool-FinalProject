@@ -12,6 +12,24 @@ public static class Display
         _ => "Unknown state"
     };
 
+    public static string DescribeLine(CategoryLine line)
+    {
+        var status = line.IsOver ? "OVER" : "ok";
+        return line.Category + " spent=" + Money(line.Spent) + " limit=" + Money(line.Limit) + " " + status;
+    }
+
+    public static string DescribeError(Error error)
+    {
+        var label = error.Kind switch
+        {
+            ErrorKind.Domain => "DOMAIN FAILURE",
+            ErrorKind.Operational => "OPERATIONAL ERROR",
+            _ => "FAILURE"
+        };
+
+        return label + " [" + error.Code + "]: " + error.Message;
+    }
+
     public static string DescribeResult(TransitionResult? result) => result switch
     {
         Moved m => "OK -> " + DescribeState(m.Next),

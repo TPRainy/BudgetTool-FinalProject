@@ -7,7 +7,21 @@ public abstract record BudgetCreation
 
 public sealed record BudgetValid(ValidatedBudget Budget) : BudgetCreation;
 
-public sealed record BudgetInvalid(IReadOnlyList<string> Reasons) : BudgetCreation;
+public sealed record BudgetInvalid : BudgetCreation
+{
+    public BudgetInvalid(IReadOnlyList<Error> errors)
+    {
+        ArgumentNullException.ThrowIfNull(errors);
+        if (errors.Count == 0)
+            throw new ArgumentException("an invalid budget needs at least one error", nameof(errors));
+
+        Errors = errors;
+    }
+
+    public IReadOnlyList<Error> Errors { get; }
+
+    public IReadOnlyList<string> Reasons => Errors.Select(e => e.Message).ToList();
+}
 
 public sealed class ValidatedBudget
 {
@@ -27,19 +41,18 @@ public sealed class ValidatedBudget
         ArgumentNullException.ThrowIfNull(items);
 
         var list = items.ToList();
-        var reasons = new List<string>();
+        var errors = new List<Error>();
 
         if (!list.Any(t => t.Kind == TransactionKind.Income && t.Amount > 0))
-            reasons.Add("at least one income transaction with an amount above 0 is required");
+            errors.Add(DomainErrors.NoIncome());
 
-        var name = policyName?.Trim().ToLowerInvariant();
-        var limitFor = Policies.Get(name);
-        if (limitFor is null || name is null)
-            reasons.Add("unknown policy '" + (policyName ?? "(none)") + "'");
+        var policy = Policies.Find(policyName);
+        if (policy is not Some<Policy>)
+            errors.Add(DomainErrors.UnknownPolicy(policyName));
 
-        if (reasons.Count > 0 || limitFor is null || name is null)
-            return new BudgetInvalid(reasons);
+        if (errors.Count == 0 && policy is Some<Policy> found)
+            return new BudgetValid(new ValidatedBudget(list.AsReadOnly(), found.Value.Name, found.Value.LimitFor));
 
-        return new BudgetValid(new ValidatedBudget(list.AsReadOnly(), name, limitFor));
+        return new BudgetInvalid(errors.AsReadOnly());
     }
 }
