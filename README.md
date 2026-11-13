@@ -1,6 +1,29 @@
 # Budget Summary - Assignment 8: Extension Methods and LINQ
 
-This snapshot extends the Assignment 7 project. The pure pipeline (Assignment 5), the validated factory and safe state transitions (Assignment 6) and the explicit `Result`/`Option` failures (Assignment 7) are still active. Assignment 8 adds two LINQ reports, two custom extension methods, a curried policy function, a lazy (`yield`) validation step, a safe CSV export and a small native C library called through P/Invoke. Earlier descriptions are kept for history in `README_Assignment5.md`, `README_Assignment6.md` and `README_Assignment7.md`.
+This snapshot extends the Assignment 7 project. The pure pipeline (Assignment 5), the validated factory and safe state transitions (Assignment 6) and the explicit `Result`/`Option` failures (Assignment 7) are still active. Assignment 8 adds two LINQ reports, two custom extension methods, a curried policy function, a lazy (`yield`) validation step, a safe CSV export and a small native C library called through P/Invoke.
+
+## Project structure
+
+```
+BudgetTool/                  console application (.NET 10)
+  Program.cs                 entry point: arguments, printing, exit codes
+  Domain/                    immutable models and outcome types
+                             Models, Error, Result, Option, ReportState, ValidatedBudget, DomainErrors
+  Core/                      pure business logic
+                             Pipeline, Validation, Policies, Workflow, ReportFlow, CategoryLookup, MoneyExtensions
+  Reports/                   LINQ reports and text/CSV formatting (pure)
+                             Reports, Analysis, CsvExport, Display
+  IO/                        file boundary: JSON input, CSV output, file errors
+                             BudgetFile, JsonInputParser, ReportFile, FileErrors
+  Interop/                   C# side of the native library (P/Invoke binding and adapter)
+                             NativeMethods, NativeUsage, NativeErrors
+  native/                    C source, header, build script, prebuilt binaries (runtimes/<rid>/)
+  data/                      sample input files
+BudgetToolTests/             xUnit tests, same folder layout as the application
+  Domain/  Core/  Reports/  IO/  Interop/  Integration/
+```
+
+All classes stay in the `BudgetTool` namespace (tests in `BudgetTool.Tests`); the folders only group files by layer.
 
 ## 1. Input, domain rules and workflow
 
