@@ -1,0 +1,7 @@
+{
+  "transactions": [
+    { "id": "I1", "category": "salary", "amount": 1000, "kind": "income" },
+    { "id": "E1", "category": "food", "amount": 120, "kind": "expense" },
+    { "id": "E2", "category": "gifts", "amount": 0, "kind": "expense" }
+  ]
+}

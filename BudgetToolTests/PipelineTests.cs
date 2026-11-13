@@ -69,6 +69,49 @@ public class PipelineTests
     }
 
     [Fact]
+    public void ZeroAmount_IsValid()
+    {
+        var outcome = Validation.ParseAll(new[] { new RawTransaction("T1", "misc", "0", "expense") });
+
+        Assert.Empty(outcome.Errors);
+        Assert.Equal(0m, Assert.Single(outcome.Transactions).Amount);
+    }
+
+    [Fact]
+    public void ZeroIncome_AnyExpenseIsOver()
+    {
+        var input = new[] { new Transaction("T1", "food", 10m, TransactionKind.Expense) };
+
+        var summary = Pipeline.Run(input, Policies.Moderate);
+
+        var line = Assert.Single(summary.Lines);
+        Assert.Equal(0m, line.Limit);
+        Assert.True(line.IsOver);
+    }
+
+    [Fact]
+    public void InvalidRecords_AreRejected_WithMessages()
+    {
+        var raw = new RawTransaction?[]
+        {
+            new("T7", "misc", "-5", "expense"),
+            new("T8", "misc", "abc", "expense"),
+            new("T9", "misc", "5", "gift"),
+            new("", "misc", "5", "expense"),
+            null,
+            new("T10", null, "5", "expense"),
+            new("T11", "misc", "", "expense"),
+        };
+
+        var outcome = Validation.ParseAll(raw);
+
+        Assert.Empty(outcome.Transactions);
+        Assert.Equal(7, outcome.Errors.Count);
+        Assert.Contains("negative", outcome.Errors[0]);
+        Assert.Contains("not a number", outcome.Errors[1]);
+    }
+
+    [Fact]
     public void JsonNull_AndNonObjectItem_AreTreatedAsMissing()
     {
         var read = JsonInputParser.Read("{\"transactions\":[{\"id\":\"T1\",\"category\":null,\"amount\":1,\"kind\":\"income\"}, 5]}");
@@ -99,6 +142,41 @@ public class PipelineTests
         Assert.NotNull(JsonInputParser.Read("[]").FormatError);
         Assert.NotNull(JsonInputParser.Read("{\"transactions\": {}}").FormatError);
         Assert.NotNull(JsonInputParser.Read("").FormatError);
+    }
+
+    [Fact]
+    public void NullInput_Throws()
+    {
+        string? missingText = null;
+        IEnumerable<RawTransaction?>? missingRaw = null;
+        IReadOnlyList<Transaction>? missingTransactions = null;
+
+#pragma warning disable CS8604
+        Assert.Throws<ArgumentNullException>(() => JsonInputParser.Read(missingText));
+        Assert.Throws<ArgumentNullException>(() => Validation.ParseAll(missingRaw));
+        Assert.Throws<ArgumentNullException>(() => Pipeline.Run(missingTransactions, Policies.Moderate));
+#pragma warning restore CS8604
+    }
+
+    [Fact]
+    public void TwoPolicies_SameInput_DifferentResults()
+    {
+        var moderate = Pipeline.Run(Sample, Policies.Moderate);
+        var strict = Pipeline.Run(Sample, Policies.Strict);
+
+        Assert.Equal(0, moderate.OverLimitCount);
+        Assert.Equal(1, strict.OverLimitCount);
+        Assert.True(strict.Lines.Single(l => l.Category == "rent").IsOver);
+        Assert.Equal(moderate.Balance, strict.Balance);
+    }
+
+    [Fact]
+    public void PolicyLookup_FindsKnown_AndRejectsUnknown()
+    {
+        Assert.NotNull(Policies.Get("Moderate"));
+        Assert.NotNull(Policies.Get(" strict "));
+        Assert.Null(Policies.Get("lenient"));
+        Assert.Null(Policies.Get(null));
     }
 
     [Fact]

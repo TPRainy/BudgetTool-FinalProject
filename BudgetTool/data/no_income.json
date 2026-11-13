@@ -1,0 +1,5 @@
+{
+  "transactions": [
+    { "id": "E1", "category": "food", "amount": 50, "kind": "expense" }
+  ]
+}

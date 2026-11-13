@@ -63,5 +63,10 @@ public static class DomainErrors
             ErrorKind.Domain);
     }
 
+    public static Error InvalidThreshold(decimal minAmount) => new(
+        "report.invalid_threshold",
+        "the minimum amount for large expenses must not be negative (got " + Money(minAmount) + ")",
+        ErrorKind.Domain);
+
     private static string Money(decimal value) => value.ToString("F2", CultureInfo.InvariantCulture);
 }
